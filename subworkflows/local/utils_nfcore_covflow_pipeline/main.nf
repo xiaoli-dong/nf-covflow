@@ -1,5 +1,5 @@
 //
-// Subworkflow with functionality specific to the xiaoli-dong/ampgenomecov pipeline
+// Subworkflow with functionality specific to the xiaoli-dong/covflow pipeline
 //
 
 /*
@@ -62,66 +62,53 @@ workflow PIPELINE_INITIALISATION {
         nextflow_cli_args
     )
 
-    //
-    // Custom validation for pipeline parameters
-    //
-    validateInputParameters()
-
-    //
+     //
     // Create channel from input file provided through params.input
     //
+    //sample,bam,ref_fasta,bed_file
+    //barcode49,bam/barcode49.sorted.bam, reference/reference.fasta, bed/amplicon.bed
+    // Read and parse samplesheet with duplicate validation
+    def seen_samples = [] as Set
 
-    /* Channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-        .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                }
+    samples = channel.fromPath(params.input)
+        .splitText()
+        .filter { line -> !line.trim().startsWith('#') && line.trim() != '' }
+        .collect()
+        .map { lines -> lines.join('\n') }
+        .splitCsv(header: true, sep: ',')
+        .map { row ->
+            // Skip rows where sample column starts with #
+            if (row.sample.startsWith('#')) {
+                return null
+            }
+
+            // Check for duplicate sample IDs
+            if (seen_samples.contains(row.sample)) {
+                error("ERROR: Duplicate sample ID found in samplesheet: '${row.sample}'\n" +
+                      "Each sample ID must be unique!\n" +
+                      "Please check your input samplesheet: ${params.input}")
+            }
+            seen_samples.add(row.sample)
+            // Return parsed row
+            [
+                sample: row.sample,
+                bam: row.bam == 'NA' ? null : row.bam,
+                ref_fasta: row.ref_fasta == 'NA' ? null : row.ref_fasta,
+                bed_file: row.bef_file == 'NA' ? null : row.bed_file
+            ]
         }
-        .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
-        }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
-        .set { ch_samplesheet } */
-    ch_bams = Channel.fromPath("${params.input}/${params.bam_file_pattern}")
-        .ifEmpty {
-            exit(1, "ERROR: No BAM files found with pattern '${params.bam_file_pattern}'' in '${params.input}' directory'")
-        }
-        .map { bamfile ->
-            def fname = bamfile.getName()
-            def sample = fname.tokenize('.')[0]
-            // prefix before first dot
-            return [sample, bamfile]
-        }
-        .groupTuple()
-   
-    ch_bams = ch_bams.map { sample, bamlist ->
-        if (bamlist.size() > 1) {
-            exit(1, "ERROR: Duplicate sample IDs found: ${sample} -> ${bamlist}")
-        }
-        def bamfile = bamlist[0]
-        def baifile = file("${bamfile}.bai")
-        if (!baifile.exists()) {
-            baifile = file(bamfile.toString().replaceAll(/\.bam$/, ".bai"))
-        }
-        if (!baifile.exists()) {
-            System.err.println("WARNING: No BAI file found for ${bamfile}")
-            baifile = null
+        .filter { it.bam != null } // Filter out null rows
+        .map { row ->
+            def meta = [
+                id: row.sample,
+            ]
+            def files = [file(row.bam), file(row.ref_fasta), file(row.bed_file)]
+            tuple(meta, files)
         }
 
-        // emit [[id: sample], bamfile, baifile]
-        [[id: sample, single_end: "${params.single_end}"], bamfile, baifile]
-    }
 
     emit:
-    samplesheet = ch_bams
+    samplesheet = samples
     versions = ch_versions
 }
 
@@ -139,11 +126,11 @@ workflow PIPELINE_COMPLETION {
     outdir //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
     hook_url //  string: hook URL for notifications
-    multiqc_report //  string: Path to MultiQC report
+
 
     main:
     summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
-    def multiqc_reports = multiqc_report.toList()
+
 
     //
     // Completion email and summary
@@ -157,7 +144,7 @@ workflow PIPELINE_COMPLETION {
                 plaintext_email,
                 outdir,
                 monochrome_logs,
-                multiqc_reports.getVal(),
+
             )
         }
 

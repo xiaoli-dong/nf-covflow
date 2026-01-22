@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/xiaoli-dong/ampgenomecov/main/assets/schema_input.json",
-    "title": "xiaoli-dong/ampgenomecov pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/xiaoli-dong/covflow/main/assets/schema_input.json",
+    "title": "xiaoli-dong/covflow pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {
@@ -13,21 +13,28 @@
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
-            "fastq_1": {
+            "bam": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.bam$",
+                "errorMessage": "Bam file must be provided, cannot contain spaces and must have extension '.bam'"
             },
-            "fastq_2": {
+            "ref_fasta": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.fasta$",
+                "errorMessage": "Fasta file for cannot contain spaces and must have extension '.fasta"
+            },
+             "bed_file": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.bed$",
+                "errorMessage": "Bed file for amplicon region cannot contain spaces and must have extension 'bed"
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["sample", "bam"]
     }
 }

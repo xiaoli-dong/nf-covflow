@@ -1,4 +1,4 @@
-# xiaoli-dong/ampgenomecov: Output
+# xiaoli-dong/covflow: Output
 
 ## Introduction
 

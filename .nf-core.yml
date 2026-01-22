@@ -5,9 +5,9 @@ nf_core_version: 3.3.2
 lint:
   files_unchanged:
     - CODE_OF_CONDUCT.md
-    - assets/nf-core-ampgenomecov_logo_light.png
-    - docs/images/nf-core-ampgenomecov_logo_light.png
-    - docs/images/nf-core-ampgenomecov_logo_dark.png
+    - assets/nf-core-covflow_logo_light.png
+    - docs/images/nf-core-covflow_logo_light.png
+    - docs/images/nf-core-covflow_logo_dark.png
     - .github/ISSUE_TEMPLATE/bug_report.yml
     - .github/CONTRIBUTING.md
     - .github/PULL_REQUEST_TEMPLATE.md
@@ -24,20 +24,20 @@ lint:
     - report_comment
   files_exist:
     - CODE_OF_CONDUCT.md
-    - assets/nf-core-ampgenomecov_logo_light.png
-    - docs/images/nf-core-ampgenomecov_logo_light.png
-    - docs/images/nf-core-ampgenomecov_logo_dark.png
+    - assets/nf-core-covflow_logo_light.png
+    - docs/images/nf-core-covflow_logo_light.png
+    - docs/images/nf-core-covflow_logo_dark.png
     - .github/ISSUE_TEMPLATE/config.yml
     - .github/workflows/awstest.yml
     - .github/workflows/awsfulltest.yml
 
 template:
   org: xiaoli-dong
-  name: ampgenomecov
+  name: covflow
   description: Nextflow pipeline to generate coverage and depth profile for the input
     contigs/genomes/amplicons
   author: xiaoli-dong
   version: 0.1.0
   force: true
-  outdir: nf-ampgenomecov
+  outdir: nf-covflow
   is_nfcore: false

@@ -1,4 +1,4 @@
-process PLOT_MOSDEPTH_REGIONS {
+process REPORT_PLOT_REGIONS {
     label 'process_medium'
 
     conda "conda-forge::r-base=4.0.3 conda-forge::r-reshape2=1.4.4 conda-forge::r-optparse=1.6.6 conda-forge::r-ggplot2=3.3.3 conda-forge::r-scales=1.1.1 conda-forge::r-viridis=0.5.1 conda-forge::r-tidyverse=1.3.0 bioconda::bioconductor-biostrings=2.58.0 bioconda::bioconductor-complexheatmap=2.6.2"
